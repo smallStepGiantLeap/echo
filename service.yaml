@@ -6,11 +6,13 @@ metadata:
 spec:
   language: go
   proto: proto/echo/v1/echo.proto
-  inbound:                       # who may call echo
-    - repo: smallStepGiantLeap/frontend
+  authorizedCallers:             # who may call which methods (Istio, by mTLS identity)
+    - service: smallStepGiantLeap/frontend
       methods: [echo.v1.EchoService/Echo]   # not Stream: the e2e proves that denial
-  outbound:                      # what echo may call
-    - repo: smallStepGiantLeap/ledger
-      methods: [ledger.v1.LedgerService/GetBalance]
+  ingress:                       # who may connect (NetworkPolicy); keep in step with authorizedCallers
+    - service: smallStepGiantLeap/frontend
+  egress:                        # what echo may connect to; everything else is refused
+    - service: smallStepGiantLeap/ledger
+      methods: [ledger.v1.LedgerService/GetBalance]   # what echo asks ledger to authorize
   placement:
     avoid: [smallStepGiantLeap/ledger]

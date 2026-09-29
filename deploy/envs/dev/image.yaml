@@ -3,4 +3,4 @@
 # vikrant writes this file once and never overwrites it.
 - op: replace
   path: /spec/template/spec/containers/0/image
-  value: ghcr.io/smallstepgiantleap/echo@sha256:632fb30cbf7988163efe783613b58cca6087c95232920ce5f5b37af257a0f591
+  value: ghcr.io/smallstepgiantleap/echo@sha256:e7b8d89ac17c650e2bb71c4aae038b1939c4d05964ec76ee42a80cbe565d5136

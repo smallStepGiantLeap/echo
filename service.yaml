@@ -1,0 +1,16 @@
+# service.yaml: the only configuration the echo team writes.
+apiVersion: vikrant.smallstepgiantleap.dev/v1alpha1
+kind: Service
+metadata:
+  name: echo
+spec:
+  language: go
+  proto: proto/echo/v1/echo.proto
+  inbound:                       # who may call echo
+    - repo: smallStepGiantLeap/frontend
+      methods: [echo.v1.EchoService/Echo]   # not Stream: the e2e proves that denial
+  outbound:                      # what echo may call
+    - repo: smallStepGiantLeap/ledger
+    - host: api.github.com:443
+  placement:
+    avoid: [smallStepGiantLeap/ledger]

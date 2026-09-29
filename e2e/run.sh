@@ -336,17 +336,17 @@ for env in deploy/envs/*/; do
 done
 
 echo
-echo "== who may call $NAME (inbound)"
-check reach "frontend is granted echo.v1.EchoService/Echo" -- probe_as frontend frontend frontend -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Echo
-check deny "frontend is not granted echo.v1.EchoService/Stream: Istio denies it by identity" -- probe_as frontend frontend frontend -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Stream -stream
-check blocked "an undeclared namespace is stopped by NetworkPolicy before it reaches the mesh" -- probe_as intruder intruder intruder -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Echo
+echo "== who may call $NAME (authorizedCallers, ingress)"
+check reach "frontend is authorized for echo.v1.EchoService/Echo" -- probe_as frontend frontend frontend -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Echo
+check deny "frontend is admitted by ingress but not authorized for echo.v1.EchoService/Stream: Istio denies it by identity" -- probe_as frontend frontend frontend -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Stream -stream
+check blocked "a namespace not in ingress is stopped by NetworkPolicy before it reaches the mesh" -- probe_as intruder intruder intruder -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Echo
 check deny "a pod in frontend wearing app=frontend but running as another service account passes NetworkPolicy; Istio denies it by identity" -- probe_as frontend impostor frontend -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Echo
 
 echo
-echo "== what $NAME may call (outbound, from inside its own pod)"
-check reach "ledger grants ledger.v1.LedgerService/GetBalance" -- probe_inside -- -target ledger.ledger.svc.cluster.local:50051 -method /ledger.v1.LedgerService/GetBalance
-check blocked "decoy is not in outbound: the Sidecar and NetworkPolicy both refuse it" -- probe_inside -- -target decoy.decoy.svc.cluster.local:50051 -method /grpc.health.v1.Health/Check
-check dial-fail "example.com is not in outbound" -- probe_inside -- -dial example.com:443
+echo "== what $NAME may connect to (egress, from inside its own pod)"
+check reach "ledger authorizes ledger.v1.LedgerService/GetBalance" -- probe_inside -- -target ledger.ledger.svc.cluster.local:50051 -method /ledger.v1.LedgerService/GetBalance
+check blocked "decoy is not in egress: the Sidecar and NetworkPolicy both refuse it" -- probe_inside -- -target decoy.decoy.svc.cluster.local:50051 -method /grpc.health.v1.Health/Check
+check dial-fail "example.com is not in egress" -- probe_inside -- -dial example.com:443
 
 echo
 echo "== autoscaling and rollout (staging's canary pace)"

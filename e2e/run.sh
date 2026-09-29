@@ -345,7 +345,6 @@ check deny "a pod in frontend wearing app=frontend but running as another servic
 echo
 echo "== what $NAME may call (outbound, from inside its own pod)"
 check reach "ledger grants ledger.v1.LedgerService/GetBalance" -- probe_inside -- -target ledger.ledger.svc.cluster.local:50051 -method /ledger.v1.LedgerService/GetBalance
-check dial-ok "api.github.com:443 is declared in outbound" -- probe_inside -- -dial api.github.com:443
 check blocked "decoy is not in outbound: the Sidecar and NetworkPolicy both refuse it" -- probe_inside -- -target decoy.decoy.svc.cluster.local:50051 -method /grpc.health.v1.Health/Check
 check dial-fail "example.com is not in outbound" -- probe_inside -- -dial example.com:443
 
@@ -363,5 +362,5 @@ echo "== node drain"
 ATTEMPTS=1 check no-errors "frontend keeps calling echo.v1.EchoService/Echo while a node running echo drains: no call fails" -- drain_under_load frontend frontend frontend -- -target echo.echo.svc.cluster.local:50051 -method /echo.v1.EchoService/Echo
 
 echo
-echo "$passed passed, $failed failed (of $((9 + 7 + 3)) checks)"
+echo "$passed passed, $failed failed (of $((8 + 7 + 3)) checks)"
 [[ "$failed" -eq 0 ]]

@@ -12,6 +12,5 @@ spec:
   - hosts:
     - istio-system/*
     - ledger/ledger.ledger.svc.cluster.local
-    - ./api.github.com
   outboundTrafficPolicy:
     mode: REGISTRY_ONLY
